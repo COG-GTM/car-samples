@@ -19,7 +19,6 @@ package androidx.car.app.sample.showcase.common.common;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import android.content.res.TypedArray;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.text.SpannableString;
@@ -47,7 +46,6 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /** Provides sample place data used in the demos. */
 public class SamplePlaces {
@@ -85,14 +83,6 @@ public class SamplePlaces {
     private static List<PlaceInfo> getSamplePlaces(@NonNull CarContext carContext) {
         List<PlaceInfo> places = new ArrayList<>();
 
-        TypedArray typedArray =
-                carContext.obtainStyledAttributes(R.style.CarAppTheme, R.styleable.ShowcaseTheme);
-        CarColor iconTintColor =
-                CarColor.createCustom(
-                        typedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColor, -1),
-                        typedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColorDark, -1));
-
-
         Location location1 = new Location(SamplePlaces.class.getSimpleName());
         location1.setLatitude(47.6696482);
         location1.setLongitude(-122.19950278);
@@ -109,7 +99,7 @@ public class SamplePlaces {
                                                 IconCompat.createWithResource(
                                                         carContext,
                                                         R.drawable.ic_commute_24px))
-                                                .setTint(iconTintColor)
+                                                .setTint(CarColor.BLUE)
                                                 .build(),
                                         PlaceMarker.TYPE_ICON)
                                 .build()));
@@ -252,7 +242,7 @@ public class SamplePlaces {
 
     /** Return the {@link ItemList} of the sample places. */
     @NonNull
-    public ItemList getPlaceList(boolean randomOrder) {
+    public ItemList getPlaceList() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         int listLimit = 6;
@@ -268,7 +258,7 @@ public class SamplePlaces {
         listLimit = min(listLimit, mPlaces.size());
 
         for (int index = 0; index < listLimit; index++) {
-            PlaceInfo place = mPlaces.get(randomOrder ? new Random().nextInt(listLimit) : index);
+            PlaceInfo place = mPlaces.get(index);
 
             // Build a description string that includes the required distance span.
             int distanceKm = getDistanceFromCurrentLocation(place.location) / 1000;
