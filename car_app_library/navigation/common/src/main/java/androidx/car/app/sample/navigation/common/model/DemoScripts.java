@@ -66,8 +66,6 @@ import static androidx.car.app.navigation.model.Maneuver.TYPE_U_TURN_RIGHT;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
@@ -82,11 +80,15 @@ import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -421,7 +423,7 @@ public class DemoScripts {
                             getCurrentDateTimeZoneWithOffset(distanceIncrement))
                             .setRemainingTimeSeconds(/* remainingTimeSeconds= */ distanceIncrement)
                             .build();
-            String notificationTitle = String.format("%dm", stepDistanceRemaining);
+            String notificationTitle = String.format(Locale.US, "%dm", stepDistanceRemaining);
             Instruction.Builder instruction =
                     Instruction.builder(
                             Instruction.Type.SET_TRIP_POSITION_NAVIGATION,

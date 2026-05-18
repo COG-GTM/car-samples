@@ -24,34 +24,33 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
-import androidx.car.app.sample.showcase.common.misc.RequestPermissionScreen;
-import androidx.car.app.sample.showcase.common.misc.ResultDemoScreen;
-import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationService;
-import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
-import androidx.car.app.sample.showcase.common.navigation.routing.NavigatingDemoScreen;
 import androidx.car.app.sample.showcase.common.renderer.Renderer;
 import androidx.car.app.sample.showcase.common.renderer.SurfaceController;
+import androidx.car.app.sample.showcase.common.screens.ResultDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigatingDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationNotificationService;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationNotificationsDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.userinteractions.RequestPermissionScreen;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Session class for the Showcase sample app. */
 public class ShowcaseSession extends Session implements DefaultLifecycleObserver {
     static final String URI_SCHEME = "samples";
     static final String URI_HOST = "showcase";
 
-    @Nullable
-    private SurfaceController mSurfaceController;
+    private @Nullable SurfaceController mSurfaceController;
 
-    @NonNull
     @Override
-    public Screen onCreateScreen(@NonNull Intent intent) {
+    public @NonNull Screen onCreateScreen(@NonNull Intent intent) {
         Lifecycle lifecycle = getLifecycle();
         lifecycle.addObserver(this);
         mSurfaceController = new SurfaceController(getCarContext(), lifecycle);
@@ -74,6 +73,19 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
                     .getCarService(ScreenManager.class)
                     .push(new StartScreen(getCarContext(), this));
             return new ResultDemoScreen(getCarContext());
+        }
+
+        boolean shouldLoadScreen =
+                getCarContext()
+                        .getSharedPreferences(ShowcaseService.SHARED_PREF_KEY, Context.MODE_PRIVATE)
+                        .getBoolean(ShowcaseService.LOADING_KEY, false);
+        if (shouldLoadScreen) {
+            // Reset so that we don't require it next time
+            getCarContext()
+                    .getSharedPreferences(ShowcaseService.SHARED_PREF_KEY, Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(ShowcaseService.LOADING_KEY, false)
+                    .apply();
         }
 
         // For demo purposes this uses a shared preference setting to store whether we should

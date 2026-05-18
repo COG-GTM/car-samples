@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,11 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
-import androidx.car.app.SessionInfo;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
@@ -45,6 +42,7 @@ import androidx.car.app.navigation.model.Destination;
 import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.sample.navigation.common.R;
+import androidx.car.app.sample.navigation.common.model.DemoScripts;
 import androidx.car.app.sample.navigation.common.model.Instruction;
 import androidx.car.app.sample.navigation.common.nav.NavigationService;
 import androidx.core.graphics.drawable.IconCompat;
@@ -53,6 +51,9 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,8 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
 
     static final String URI_SCHEME = "samples";
     static final String URI_HOST = "navigation";
+
+    static final String EXECUTE_SCRIPT = "EXECUTE_SCRIPT";
 
     @Nullable
     NavigationScreen mNavigationScreen;
@@ -175,11 +178,9 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
                 }
             };
 
-    NavigationSession(@NonNull SessionInfo sessionInfo) {
-        if (sessionInfo.getDisplayType() == SessionInfo.DISPLAY_TYPE_MAIN) {
+    NavigationSession() {
             Lifecycle lifecycle = getLifecycle();
             lifecycle.addObserver(mLifeCycleObserver);
-        }
     }
 
     @Override
@@ -257,6 +258,10 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
                     });
 
             return;
+        }
+
+        if (EXECUTE_SCRIPT.equals(intent.getAction())) {
+            executeScript(DemoScripts.getNavigateHome(getCarContext()));
         }
 
         // Process the intent from DeepLinkNotificationReceiver. Bring the routing screen back to

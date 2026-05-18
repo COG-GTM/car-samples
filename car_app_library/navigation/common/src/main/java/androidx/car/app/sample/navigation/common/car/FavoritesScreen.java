@@ -21,8 +21,6 @@ import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
 import android.text.SpannableString;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -32,14 +30,18 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Metadata;
 import androidx.car.app.model.Place;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
-import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
+import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.model.DemoScripts;
 import androidx.car.app.sample.navigation.common.model.PlaceInfo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,10 +99,12 @@ public final class FavoritesScreen extends Screen {
                 .setTitle(getCarContext().getString(R.string.app_name))
                 .build();
 
-        return new PlaceListNavigationTemplate.Builder()
-                .setItemList(listBuilder.build())
+        return new MapWithContentTemplate.Builder()
+                .setContentTemplate(new ListTemplate.Builder()
+                        .setHeader(header)
+                        .setSingleList(listBuilder.build())
+                        .build())
                 .setActionStrip(new ActionStrip.Builder().addAction(mSettingsAction).build())
-                .setHeader(header)
                 .build();
     }
 

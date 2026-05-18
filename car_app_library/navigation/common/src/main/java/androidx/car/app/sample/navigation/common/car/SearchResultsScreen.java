@@ -20,8 +20,6 @@ import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
 
 import android.text.SpannableString;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -31,13 +29,19 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Metadata;
 import androidx.car.app.model.Place;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
-import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
+import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.navigation.common.model.DemoScripts;
 import androidx.car.app.sample.navigation.common.model.PlaceInfo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Locale;
 
 /** Screen for showing a list of places from a search. */
 public final class SearchResultsScreen extends Screen {
@@ -71,8 +75,8 @@ public final class SearchResultsScreen extends Screen {
         for (int i = 0; i < numItems; i++) {
             PlaceInfo place =
                     new PlaceInfo(
-                            String.format("Result %d", i + 1),
-                            String.format("%d Main Street.", (i + 1) * 10));
+                            String.format(Locale.US, "Result %d", i + 1),
+                            String.format(Locale.US, "%d Main Street.", (i + 1) * 10));
 
             SpannableString address = new SpannableString("  \u00b7 " + place.getDisplayAddress());
             DistanceSpan distanceSpan =
@@ -99,9 +103,11 @@ public final class SearchResultsScreen extends Screen {
                 .setTitle("Search: " + mSearchText)
                 .build();
 
-        return new PlaceListNavigationTemplate.Builder()
-                .setItemList(listBuilder.build())
-                .setHeader(header)
+        return new MapWithContentTemplate.Builder()
+                .setContentTemplate(new ListTemplate.Builder()
+                        .setHeader(header)
+                        .setSingleList(listBuilder.build())
+                        .build())
                 .setActionStrip(new ActionStrip.Builder().addAction(mSettingsAction).build())
                 .build();
     }
