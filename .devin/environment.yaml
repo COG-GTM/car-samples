@@ -1,0 +1,23 @@
+# https://docs.devin.ai/onboard-devin/environment-yaml
+# One-time setup (e.g., install system tools, global CLIs).
+initialize: |
+  # Install AAOS emulator image + AVD used to run the CarGearViewerKotlin sample.
+  yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "system-images;android-33;android-automotive;x86_64" >/dev/null || true
+  echo "no" | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n car_demo \
+    -k "system-images;android-33;android-automotive;x86_64" -d "automotive_1024p_landscape" --force || true
+# Install project dependencies (runs during builds, surfaced to agent at session start).
+maintenance: |
+  echo "sdk.dir=$ANDROID_HOME" > car_app_library/local.properties
+  echo "sdk.dir=$ANDROID_HOME" > car-lib/CarGearViewerKotlin/local.properties
+knowledge:
+  - name: build
+    contents: |
+      # car_app_library (AGP 8.4.2, needs JDK 17; wrapper committed on main):
+      (cd car_app_library && JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :showcase:mobile:assembleDebug :showcase:automotive:assembleDebug)
+      # CarGearViewerKotlin (Gradle 5.6.4, needs JDK 11):
+      (cd car-lib/CarGearViewerKotlin && JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 ./gradlew :automotive:assembleDebug)
+  - name: notes
+    contents: |
+      # Run AAOS sample: boot `emulator -avd car_demo`, then
+      # adb install car-lib/CarGearViewerKotlin/automotive/build/outputs/apk/debug/automotive-debug.apk
+      # Change gear: adb shell cmd car_service inject-vhal-event 289408001 <1=N,2=R,4=P,8=D>
