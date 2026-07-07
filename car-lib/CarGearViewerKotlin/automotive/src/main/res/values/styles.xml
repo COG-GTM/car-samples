@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MBUXDriveStatus" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@color/mb_black</item>
+        <item name="android:colorPrimary">@color/mb_blue</item>
+        <item name="android:colorAccent">@color/mb_blue</item>
+        <item name="android:textColorPrimary">@color/mb_silver</item>
+        <item name="android:statusBarColor">@color/mb_black</item>
+        <item name="android:navigationBarColor">@color/mb_black</item>
+    </style>
+</resources>

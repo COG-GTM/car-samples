@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mb_black">#FF0D0D0D</color>
+    <color name="mb_dark_bg">#FF1A1A1A</color>
+    <color name="mb_silver">#FFD9D9D9</color>
+    <color name="mb_white">#FFFFFFFF</color>
+    <color name="mb_blue">#FF00ADEF</color>
+    <color name="mb_dim">#FF555555</color>
+    <color name="mb_card_bg">#FF262626</color>
+    <color name="mb_bar_track">#FF333333</color>
+</resources>
