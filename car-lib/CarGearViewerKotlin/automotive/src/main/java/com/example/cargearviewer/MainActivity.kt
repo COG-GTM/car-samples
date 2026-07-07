@@ -138,7 +138,7 @@ class MainActivity : Activity() {
             carPropertyManager.registerCallback(
                 speedListener,
                 VehiclePropertyIds.PERF_VEHICLE_SPEED,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE
+                CarPropertyManager.SENSOR_RATE_NORMAL
             )
         } catch (e: Exception) {
             Log.w(TAG, "Could not register for PERF_VEHICLE_SPEED: ${e.message}")
@@ -157,7 +157,7 @@ class MainActivity : Activity() {
             carPropertyManager.registerCallback(
                 batteryListener,
                 VehiclePropertyIds.EV_BATTERY_LEVEL,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE
+                CarPropertyManager.SENSOR_RATE_NORMAL
             )
             usingFuelFallback = false
             return
@@ -176,7 +176,7 @@ class MainActivity : Activity() {
             carPropertyManager.registerCallback(
                 batteryListener,
                 VehiclePropertyIds.FUEL_LEVEL,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE
+                CarPropertyManager.SENSOR_RATE_NORMAL
             )
             usingFuelFallback = true
             batteryLabel.text = getString(R.string.fuel_label)
