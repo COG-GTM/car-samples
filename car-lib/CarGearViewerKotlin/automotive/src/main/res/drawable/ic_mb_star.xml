@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Simplified Mercedes-Benz three-pointed star inside a circle.
+    This is a self-drawn illustrative vector for demonstration purposes only;
+    it is NOT an official Mercedes-Benz trademark asset.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Outer circle -->
+    <path
+        android:pathData="M50,5 A45,45,0,1,1,49.99,5 Z"
+        android:strokeColor="#FFD9D9D9"
+        android:strokeWidth="3"
+        android:fillColor="@android:color/transparent" />
+
+    <!-- Inner circle -->
+    <path
+        android:pathData="M50,15 A35,35,0,1,1,49.99,15 Z"
+        android:strokeColor="#FFD9D9D9"
+        android:strokeWidth="1.5"
+        android:fillColor="@android:color/transparent" />
+
+    <!-- Three-pointed star: top point straight up, lower-left, lower-right -->
+    <path
+        android:pathData="M50,18 L54,46 L76,72 L50,54 L24,72 L46,46 Z"
+        android:fillColor="#FFD9D9D9" />
+</vector>
