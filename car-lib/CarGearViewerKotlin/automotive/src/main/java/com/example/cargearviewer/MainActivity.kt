@@ -22,7 +22,9 @@ import android.car.hardware.CarPropertyValue
 import android.car.hardware.property.CarPropertyManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.ProgressBar
 import android.widget.TextView
+import java.util.Locale
 
 /**
  * A simple activity that demonstrates connecting to car API and processing car property change
@@ -33,20 +35,19 @@ import android.widget.TextView
 class MainActivity : Activity() {
     companion object {
         private const val TAG = "MainActivity"
-
-        private const val GEAR_UNKNOWN = "GEAR_UNKNOWN"
-
-        // Values are taken from android.car.hardware.CarSensorEvent class.
-        private val VEHICLE_GEARS = mapOf(
-            0x0000 to GEAR_UNKNOWN,
-            0x0001 to "GEAR_NEUTRAL",
-            0x0002 to "GEAR_REVERSE",
-            0x0004 to "GEAR_PARK",
-            0x0008 to "GEAR_DRIVE"
-        )
+        private const val GEAR_P = 0x0004
+        private const val GEAR_R = 0x0002
+        private const val GEAR_N = 0x0001
+        private const val GEAR_D = 0x0008
     }
 
-    private lateinit var currentGearTextView: TextView
+    private lateinit var gearPTextView: TextView
+    private lateinit var gearRTextView: TextView
+    private lateinit var gearNTextView: TextView
+    private lateinit var gearDTextView: TextView
+    private lateinit var speedValueTextView: TextView
+    private lateinit var batteryPercentTextView: TextView
+    private lateinit var batteryBar: ProgressBar
 
     /** Car API. */
     private lateinit var car: Car
@@ -59,11 +60,20 @@ class MainActivity : Activity() {
      */
     private lateinit var carPropertyManager: CarPropertyManager
 
-    private var carPropertyListener = object : CarPropertyManager.CarPropertyEventCallback {
+    private var energyLevel: Float? = null
+    private var energyCapacity: Float? = null
+
+    private val carPropertyListener = object : CarPropertyManager.CarPropertyEventCallback {
         override fun onChangeEvent(value: CarPropertyValue<Any>) {
             Log.d(TAG, "Received on changed car property event")
-            // value.value type changes depending on the vehicle property.
-            currentGearTextView.text = VEHICLE_GEARS.getOrDefault(value.value as Int, GEAR_UNKNOWN)
+            when (value.propertyId) {
+                VehiclePropertyIds.CURRENT_GEAR -> highlightGear(value.value as? Int ?: 0)
+                VehiclePropertyIds.PERF_VEHICLE_SPEED -> updateSpeed(value.value)
+                VehiclePropertyIds.EV_BATTERY_LEVEL,
+                VehiclePropertyIds.FUEL_LEVEL -> updateEnergyLevel(value.value)
+                VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY,
+                VehiclePropertyIds.INFO_FUEL_CAPACITY -> updateEnergyCapacity(value.value)
+            }
         }
 
         override fun onErrorEvent(propId: Int, zone: Int) {
@@ -75,7 +85,13 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        currentGearTextView = findViewById(R.id.currentGearTextView)
+        gearPTextView = findViewById(R.id.gearP)
+        gearRTextView = findViewById(R.id.gearR)
+        gearNTextView = findViewById(R.id.gearN)
+        gearDTextView = findViewById(R.id.gearD)
+        speedValueTextView = findViewById(R.id.speedValueTextView)
+        batteryPercentTextView = findViewById(R.id.batteryPercentTextView)
+        batteryBar = findViewById(R.id.batteryBar)
 
         // createCar() returns a "Car" object to access car service APIs. It can return null if
         // car service is not yet ready but that is not a common case and can happen on rare cases
@@ -85,19 +101,121 @@ class MainActivity : Activity() {
         // handling car service crashes graciously). Please see the SDK documentation for this.
         car = Car.createCar(this)
 
-        carPropertyManager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager;
+        carPropertyManager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
 
-        // Subscribes to the gear change events.
-        carPropertyManager.registerCallback(
-            carPropertyListener,
-            VehiclePropertyIds.CURRENT_GEAR,
-            CarPropertyManager.SENSOR_RATE_ONCHANGE
-        )
+        highlightGear(0)
+        speedValueTextView.text = "—"
+        batteryPercentTextView.text = "—"
+        batteryBar.progress = 0
+
+        registerProperty(VehiclePropertyIds.CURRENT_GEAR)
+        registerProperty(VehiclePropertyIds.PERF_VEHICLE_SPEED)
+        registerEnergyProperties()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
+        if (::carPropertyManager.isInitialized) {
+            try {
+                carPropertyManager.unregisterCallback(carPropertyListener)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to unregister callback", e)
+            }
+        }
         car.disconnect()
+    }
+
+    private fun registerProperty(propertyId: Int): Boolean {
+        return try {
+            carPropertyManager.registerCallback(
+                carPropertyListener,
+                propertyId,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to register propertyId=$propertyId", e)
+            false
+        }
+    }
+
+    private fun registerEnergyProperties() {
+        if (registerProperty(VehiclePropertyIds.EV_BATTERY_LEVEL)) {
+            energyCapacity = readFloatProperty(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY)
+            energyLevel = readFloatProperty(VehiclePropertyIds.EV_BATTERY_LEVEL)
+            renderEnergy()
+            return
+        }
+
+        if (registerProperty(VehiclePropertyIds.FUEL_LEVEL)) {
+            energyCapacity = readFloatProperty(VehiclePropertyIds.INFO_FUEL_CAPACITY)
+            energyLevel = readFloatProperty(VehiclePropertyIds.FUEL_LEVEL)
+            renderEnergy()
+        }
+    }
+
+    private fun readFloatProperty(propertyId: Int): Float? {
+        return try {
+            carPropertyManager.getProperty(Float::class.javaObjectType, propertyId, 0)?.value
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to read propertyId=$propertyId", e)
+            null
+        }
+    }
+
+    private fun updateSpeed(rawValue: Any?) {
+        val metersPerSecond = rawValue as? Float ?: return
+        val kmh = metersPerSecond * 3.6f
+        speedValueTextView.text = String.format(Locale.US, "%.0f", kmh)
+    }
+
+    private fun updateEnergyLevel(rawValue: Any?) {
+        energyLevel = rawValue.asFloat()
+        renderEnergy()
+    }
+
+    private fun updateEnergyCapacity(rawValue: Any?) {
+        energyCapacity = rawValue.asFloat()
+        renderEnergy()
+    }
+
+    private fun renderEnergy() {
+        val level = energyLevel
+        val capacity = energyCapacity
+        if (level == null || capacity == null || capacity <= 0f) {
+            batteryPercentTextView.text = "—"
+            batteryBar.progress = 0
+            return
+        }
+
+        val percent = (level / capacity) * 100f
+        val clampedPercent = percent.coerceIn(0f, 100f)
+        batteryPercentTextView.text = String.format(Locale.US, "%.0f%%", clampedPercent)
+        batteryBar.progress = clampedPercent.toInt()
+    }
+
+    private fun highlightGear(gearValue: Int) {
+        gearPTextView.setTextColor(getGearColor(gearValue, GEAR_P))
+        gearRTextView.setTextColor(getGearColor(gearValue, GEAR_R))
+        gearNTextView.setTextColor(getGearColor(gearValue, GEAR_N))
+        gearDTextView.setTextColor(getGearColor(gearValue, GEAR_D))
+    }
+
+    private fun getGearColor(activeGear: Int, expectedGear: Int): Int {
+        return if (activeGear == expectedGear) {
+            getColor(R.color.mb_blue)
+        } else {
+            getColor(R.color.mb_dim)
+        }
+    }
+
+    private fun Any?.asFloat(): Float? {
+        return when (this) {
+            is Float -> this
+            is Double -> this.toFloat()
+            is Int -> this.toFloat()
+            is Number -> this.toFloat()
+            else -> null
+        }
     }
 }

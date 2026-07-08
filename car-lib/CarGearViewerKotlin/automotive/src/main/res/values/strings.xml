@@ -14,8 +14,14 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name">CarGearViewer</string>
-
-    <!-- MainActivity -->
-    <string name="main_current_gear">Current Gear:</string>
+    <string name="app_name">Mercedes-Benz Drive Status</string>
+    <string name="drive_status_title">Mercedes-Benz Drive Status</string>
+    <string name="mb_star_content_description">Mercedes-Benz inspired star mark</string>
+    <string name="speed_label">SPEED</string>
+    <string name="speed_unit">km/h</string>
+    <string name="battery_label">BATTERY / RANGE</string>
+    <string name="gear_p">P</string>
+    <string name="gear_r">R</string>
+    <string name="gear_n">N</string>
+    <string name="gear_d">D</string>
 </resources>
