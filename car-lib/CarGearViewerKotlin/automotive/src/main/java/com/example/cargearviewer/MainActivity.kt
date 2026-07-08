@@ -64,9 +64,9 @@ class MainActivity : Activity() {
      */
     private lateinit var carPropertyManager: CarPropertyManager
 
-    private var evBatteryCapacityWh: Float? = null
-    private var fuelCapacity: Float? = null
-    private var energyLabelResId: Int = R.string.battery_label
+    private var activeEnergyPropertyId: Int = VehiclePropertyIds.EV_BATTERY_LEVEL
+    private var activeEnergyCapacity: Float? = null
+    private var activeEnergyLabelResId: Int = R.string.battery_label
 
     private val carPropertyListener = object : CarPropertyManager.CarPropertyEventCallback {
         override fun onChangeEvent(value: CarPropertyValue<Any>) {
@@ -75,8 +75,7 @@ class MainActivity : Activity() {
                 when (value.propertyId) {
                     VehiclePropertyIds.CURRENT_GEAR -> highlightGear(value.value as Int)
                     VehiclePropertyIds.PERF_VEHICLE_SPEED -> updateSpeed(value.value)
-                    VehiclePropertyIds.EV_BATTERY_LEVEL -> updateEnergyLevel(value.value, evBatteryCapacityWh)
-                    VehiclePropertyIds.FUEL_LEVEL -> updateEnergyLevel(value.value, fuelCapacity)
+                    activeEnergyPropertyId -> updateEnergyLevel(value.value, activeEnergyCapacity)
                 }
             }
         }
@@ -102,22 +101,31 @@ class MainActivity : Activity() {
         car = Car.createCar(this)
         carPropertyManager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
 
-        evBatteryCapacityWh = readFloatProperty(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY)
-        if (evBatteryCapacityWh == null) {
-            fuelCapacity = readFloatProperty(VehiclePropertyIds.INFO_FUEL_CAPACITY)
-            if (fuelCapacity != null) {
-                energyLabelResId = R.string.fuel_label
-            }
+        val evBatteryCapacity = readFloatProperty(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY)
+        if (evBatteryCapacity != null && evBatteryCapacity > 0f) {
+            activeEnergyPropertyId = VehiclePropertyIds.EV_BATTERY_LEVEL
+            activeEnergyCapacity = evBatteryCapacity
+            activeEnergyLabelResId = R.string.battery_label
+        } else {
+            activeEnergyPropertyId = VehiclePropertyIds.FUEL_LEVEL
+            activeEnergyCapacity = readFloatProperty(VehiclePropertyIds.INFO_FUEL_CAPACITY)
+            activeEnergyLabelResId = R.string.fuel_label
         }
 
         registerPropertyCallback(VehiclePropertyIds.CURRENT_GEAR, "CURRENT_GEAR")
         registerPropertyCallback(VehiclePropertyIds.PERF_VEHICLE_SPEED, "PERF_VEHICLE_SPEED")
-        registerPropertyCallback(VehiclePropertyIds.EV_BATTERY_LEVEL, "EV_BATTERY_LEVEL")
-        registerPropertyCallback(VehiclePropertyIds.FUEL_LEVEL, "FUEL_LEVEL")
+        registerPropertyCallback(
+            activeEnergyPropertyId,
+            if (activeEnergyPropertyId == VehiclePropertyIds.EV_BATTERY_LEVEL) {
+                "EV_BATTERY_LEVEL"
+            } else {
+                "FUEL_LEVEL"
+            }
+        )
 
         highlightGear(GEAR_PARK)
         speedValueTextView.text = "0"
-        batteryLabelTextView.text = getString(energyLabelResId)
+        batteryLabelTextView.text = getString(activeEnergyLabelResId)
         batteryPercentTextView.text = DEFAULT_PLACEHOLDER
         batteryBar.progress = 0
     }
@@ -153,7 +161,7 @@ class MainActivity : Activity() {
 
     private fun readFloatProperty(propertyId: Int): Float? {
         return try {
-            carPropertyManager.getProperty(Float::class.java, propertyId, 0)?.value
+            carPropertyManager.getProperty(Float::class.javaObjectType, propertyId, 0)?.value
         } catch (e: Exception) {
             Log.w(TAG, "Unable to read property $propertyId", e)
             null
