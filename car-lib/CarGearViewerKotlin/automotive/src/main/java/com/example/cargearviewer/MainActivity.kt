@@ -45,6 +45,11 @@ class MainActivity : Activity() {
         private const val MB_BLUE = 0xFF00ADEF.toInt()
         // Dimmed color for inactive gears
         private const val MB_DIM = 0xFF555555.toInt()
+
+        // Sample rate (Hz) used to subscribe to CONTINUOUS properties
+        // (PERF_VEHICLE_SPEED, EV_BATTERY_LEVEL, FUEL_LEVEL). These cannot be
+        // subscribed with SENSOR_RATE_ONCHANGE (0 Hz).
+        private const val CONTINUOUS_SAMPLE_RATE_HZ = 10f
     }
 
     private lateinit var gearP: TextView
@@ -134,55 +139,69 @@ class MainActivity : Activity() {
     }
 
     private fun registerSpeedCallback() {
+        // PERF_VEHICLE_SPEED is a CONTINUOUS property, so it must be subscribed
+        // at a non-zero sample rate (Hz) rather than SENSOR_RATE_ONCHANGE.
         try {
-            carPropertyManager.registerCallback(
+            val registered = carPropertyManager.registerCallback(
                 speedListener,
                 VehiclePropertyIds.PERF_VEHICLE_SPEED,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE
+                CONTINUOUS_SAMPLE_RATE_HZ
             )
+            Log.d(TAG, "PERF_VEHICLE_SPEED registered=$registered")
         } catch (e: Exception) {
             Log.w(TAG, "Could not register for PERF_VEHICLE_SPEED: ${e.message}")
         }
     }
 
     private fun registerBatteryOrFuelCallback() {
-        // Try EV battery first, fall back to fuel level
-        try {
-            val capProp = carPropertyManager.getProperty<Float>(
-                VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY, 0
-            )
-            batteryCapacity = capProp?.value ?: 0f
-            Log.d(TAG, "EV battery capacity: $batteryCapacity")
+        // Reading the capacity requires CAR_INFO, which may be unavailable; read
+        // it best-effort so a missing capacity never blocks the level subscription.
+        readEnergyCapacity()
 
-            carPropertyManager.registerCallback(
-                batteryListener,
-                VehiclePropertyIds.EV_BATTERY_LEVEL,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE
-            )
-            usingFuelFallback = false
+        // EV_BATTERY_LEVEL / FUEL_LEVEL are CONTINUOUS properties -> subscribe at
+        // a non-zero sample rate. Prefer EV battery, fall back to fuel level.
+        if (subscribeEnergyLevel(VehiclePropertyIds.EV_BATTERY_LEVEL, fuel = false)) {
             return
-        } catch (e: Exception) {
-            Log.w(TAG, "EV battery not available, trying fuel fallback: ${e.message}")
         }
+        if (subscribeEnergyLevel(VehiclePropertyIds.FUEL_LEVEL, fuel = true)) {
+            return
+        }
+        batteryPercentTextView.text = getString(R.string.placeholder_dash)
+    }
 
-        // Fuel fallback
-        try {
-            val capProp = carPropertyManager.getProperty<Float>(
-                VehiclePropertyIds.INFO_FUEL_CAPACITY, 0
-            )
-            batteryCapacity = capProp?.value ?: 0f
-            Log.d(TAG, "Fuel capacity: $batteryCapacity")
-
-            carPropertyManager.registerCallback(
-                batteryListener,
-                VehiclePropertyIds.FUEL_LEVEL,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE
-            )
-            usingFuelFallback = true
-            batteryLabel.text = getString(R.string.fuel_label)
+    private fun readEnergyCapacity() {
+        batteryCapacity = try {
+            carPropertyManager.getProperty<Float>(
+                VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY, 0
+            )?.value ?: 0f
         } catch (e: Exception) {
-            Log.w(TAG, "Fuel level also not available: ${e.message}")
-            batteryPercentTextView.text = getString(R.string.placeholder_dash)
+            Log.w(TAG, "EV battery capacity unavailable: ${e.message}")
+            try {
+                carPropertyManager.getProperty<Float>(
+                    VehiclePropertyIds.INFO_FUEL_CAPACITY, 0
+                )?.value ?: 0f
+            } catch (e2: Exception) {
+                Log.w(TAG, "Fuel capacity unavailable: ${e2.message}")
+                0f
+            }
+        }
+        Log.d(TAG, "Energy capacity: $batteryCapacity")
+    }
+
+    private fun subscribeEnergyLevel(propertyId: Int, fuel: Boolean): Boolean {
+        return try {
+            val registered = carPropertyManager.registerCallback(
+                batteryListener, propertyId, CONTINUOUS_SAMPLE_RATE_HZ
+            )
+            Log.d(TAG, "Energy level propertyId=$propertyId registered=$registered")
+            if (registered) {
+                usingFuelFallback = fuel
+                if (fuel) batteryLabel.text = getString(R.string.fuel_label)
+            }
+            registered
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not register for propertyId=$propertyId: ${e.message}")
+            false
         }
     }
 
