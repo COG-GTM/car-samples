@@ -20,33 +20,38 @@ import android.car.Car
 import android.car.VehiclePropertyIds
 import android.car.hardware.CarPropertyValue
 import android.car.hardware.property.CarPropertyManager
+import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
+import android.widget.ProgressBar
 import android.widget.TextView
+import java.util.Locale
+import kotlin.math.roundToInt
 
 /**
- * A simple activity that demonstrates connecting to car API and processing car property change
- * events.
- *
- * <p>Please see https://developer.android.com/reference/android/car/packages for API documentation.
+ * Activity that demonstrates connecting to the car API and visualizing drivetrain and energy
+ * telemetry.
  */
 class MainActivity : Activity() {
     companion object {
         private const val TAG = "MainActivity"
 
-        private const val GEAR_UNKNOWN = "GEAR_UNKNOWN"
+        private const val GEAR_PARK = 4
+        private const val GEAR_DRIVE = 8
+        private const val GEAR_REVERSE = 2
+        private const val GEAR_NEUTRAL = 1
 
-        // Values are taken from android.car.hardware.CarSensorEvent class.
-        private val VEHICLE_GEARS = mapOf(
-            0x0000 to GEAR_UNKNOWN,
-            0x0001 to "GEAR_NEUTRAL",
-            0x0002 to "GEAR_REVERSE",
-            0x0004 to "GEAR_PARK",
-            0x0008 to "GEAR_DRIVE"
-        )
+        private const val DEFAULT_PLACEHOLDER = "—"
     }
 
-    private lateinit var currentGearTextView: TextView
+    private lateinit var gearPTextView: TextView
+    private lateinit var gearRTextView: TextView
+    private lateinit var gearNTextView: TextView
+    private lateinit var gearDTextView: TextView
+    private lateinit var speedValueTextView: TextView
+    private lateinit var batteryLabelTextView: TextView
+    private lateinit var batteryPercentTextView: TextView
+    private lateinit var batteryBar: ProgressBar
 
     /** Car API. */
     private lateinit var car: Car
@@ -59,15 +64,25 @@ class MainActivity : Activity() {
      */
     private lateinit var carPropertyManager: CarPropertyManager
 
-    private var carPropertyListener = object : CarPropertyManager.CarPropertyEventCallback {
+    private var evBatteryCapacityWh: Float? = null
+    private var fuelCapacity: Float? = null
+    private var energyLabelResId: Int = R.string.battery_label
+
+    private val carPropertyListener = object : CarPropertyManager.CarPropertyEventCallback {
         override fun onChangeEvent(value: CarPropertyValue<Any>) {
-            Log.d(TAG, "Received on changed car property event")
-            // value.value type changes depending on the vehicle property.
-            currentGearTextView.text = VEHICLE_GEARS.getOrDefault(value.value as Int, GEAR_UNKNOWN)
+            Log.d(TAG, "Received changed car property event for ${value.propertyId}")
+            runOnUiThread {
+                when (value.propertyId) {
+                    VehiclePropertyIds.CURRENT_GEAR -> highlightGear(value.value as Int)
+                    VehiclePropertyIds.PERF_VEHICLE_SPEED -> updateSpeed(value.value)
+                    VehiclePropertyIds.EV_BATTERY_LEVEL -> updateEnergyLevel(value.value, evBatteryCapacityWh)
+                    VehiclePropertyIds.FUEL_LEVEL -> updateEnergyLevel(value.value, fuelCapacity)
+                }
+            }
         }
 
         override fun onErrorEvent(propId: Int, zone: Int) {
-            Log.w(TAG, "Received error car property event, propId=$propId")
+            Log.w(TAG, "Received error car property event, propId=$propId, zone=$zone")
         }
     }
 
@@ -75,29 +90,124 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        currentGearTextView = findViewById(R.id.currentGearTextView)
+        gearPTextView = findViewById(R.id.gearP)
+        gearRTextView = findViewById(R.id.gearR)
+        gearNTextView = findViewById(R.id.gearN)
+        gearDTextView = findViewById(R.id.gearD)
+        speedValueTextView = findViewById(R.id.speedValueTextView)
+        batteryLabelTextView = findViewById(R.id.batteryLabelTextView)
+        batteryPercentTextView = findViewById(R.id.batteryPercentTextView)
+        batteryBar = findViewById(R.id.batteryBar)
 
-        // createCar() returns a "Car" object to access car service APIs. It can return null if
-        // car service is not yet ready but that is not a common case and can happen on rare cases
-        // (for example car service crashes) so the receiver should be ready for a null car object.
-        //
-        // Other variants of this API allows more control over car service functionality (such as
-        // handling car service crashes graciously). Please see the SDK documentation for this.
         car = Car.createCar(this)
+        carPropertyManager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
 
-        carPropertyManager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager;
+        evBatteryCapacityWh = readFloatProperty(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY)
+        if (evBatteryCapacityWh == null) {
+            fuelCapacity = readFloatProperty(VehiclePropertyIds.INFO_FUEL_CAPACITY)
+            if (fuelCapacity != null) {
+                energyLabelResId = R.string.fuel_label
+            }
+        }
 
-        // Subscribes to the gear change events.
-        carPropertyManager.registerCallback(
-            carPropertyListener,
-            VehiclePropertyIds.CURRENT_GEAR,
-            CarPropertyManager.SENSOR_RATE_ONCHANGE
-        )
+        registerPropertyCallback(VehiclePropertyIds.CURRENT_GEAR, "CURRENT_GEAR")
+        registerPropertyCallback(VehiclePropertyIds.PERF_VEHICLE_SPEED, "PERF_VEHICLE_SPEED")
+        registerPropertyCallback(VehiclePropertyIds.EV_BATTERY_LEVEL, "EV_BATTERY_LEVEL")
+        registerPropertyCallback(VehiclePropertyIds.FUEL_LEVEL, "FUEL_LEVEL")
+
+        highlightGear(GEAR_PARK)
+        speedValueTextView.text = "0"
+        batteryLabelTextView.text = getString(energyLabelResId)
+        batteryPercentTextView.text = DEFAULT_PLACEHOLDER
+        batteryBar.progress = 0
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        if (::carPropertyManager.isInitialized) {
+            try {
+                carPropertyManager.unregisterCallback(carPropertyListener)
+            } catch (e: Exception) {
+                Log.w(TAG, "Unable to unregister car property callback", e)
+            }
+        }
+        if (::car.isInitialized) {
+            car.disconnect()
+        }
+    }
 
-        car.disconnect()
+    private fun registerPropertyCallback(propertyId: Int, propertyName: String) {
+        try {
+            val registered = carPropertyManager.registerCallback(
+                carPropertyListener,
+                propertyId,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE
+            )
+            if (!registered) {
+                Log.w(TAG, "registerCallback returned false for $propertyName")
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to register callback for $propertyName", e)
+        }
+    }
+
+    private fun readFloatProperty(propertyId: Int): Float? {
+        return try {
+            carPropertyManager.getProperty(Float::class.java, propertyId, 0)?.value
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to read property $propertyId", e)
+            null
+        }
+    }
+
+    private fun highlightGear(gearValue: Int) {
+        val activeColor = getColor(R.color.mb_blue)
+        val inactiveColor = getColor(R.color.mb_dim)
+
+        styleGearTextView(gearPTextView, gearValue == GEAR_PARK, activeColor, inactiveColor)
+        styleGearTextView(gearRTextView, gearValue == GEAR_REVERSE, activeColor, inactiveColor)
+        styleGearTextView(gearNTextView, gearValue == GEAR_NEUTRAL, activeColor, inactiveColor)
+        styleGearTextView(gearDTextView, gearValue == GEAR_DRIVE, activeColor, inactiveColor)
+    }
+
+    private fun styleGearTextView(
+        textView: TextView,
+        active: Boolean,
+        activeColor: Int,
+        inactiveColor: Int
+    ) {
+        textView.setTextColor(if (active) activeColor else inactiveColor)
+        textView.setTypeface(null, if (active) Typeface.BOLD else Typeface.NORMAL)
+    }
+
+    private fun updateSpeed(rawValue: Any) {
+        val speedMetersPerSecond = rawValue as? Float ?: return
+        val speedKmh = speedMetersPerSecond * 3.6f
+        speedValueTextView.text = String.format(Locale.US, "%.0f", speedKmh)
+    }
+
+    private fun updateEnergyLevel(rawValue: Any, capacity: Float?) {
+        val level = rawValue as? Float
+        if (level == null) {
+            batteryPercentTextView.text = DEFAULT_PLACEHOLDER
+            batteryBar.progress = 0
+            return
+        }
+
+        val percent = when {
+            capacity != null && capacity > 0f -> (level / capacity) * 100f
+            level in 0f..1f -> level * 100f
+            else -> null
+        }
+
+        if (percent == null || percent.isNaN() || percent.isInfinite()) {
+            batteryPercentTextView.text = DEFAULT_PLACEHOLDER
+            batteryBar.progress = 0
+            return
+        }
+
+        val clampedPercent = percent.coerceIn(0f, 100f)
+        batteryPercentTextView.text = String.format(Locale.US, "%.0f%%", clampedPercent)
+        batteryBar.progress = clampedPercent.roundToInt()
     }
 }
