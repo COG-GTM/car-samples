@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Illustrative, self-drawn mark for this sample; not an official Mercedes-Benz trademarked asset. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="@color/mb_silver"
+        android:pathData="M24,4a20,20 0,1 1,0 40a20,20 0,1 1,0 -40z" />
+    <path
+        android:fillColor="@color/mb_black"
+        android:pathData="M24,8.5l6.8,9.6l10.9,-1.8l-5,9.8l5,9.8l-10.9,-1.8l-6.8,9.6l-6.8,-9.6l-10.9,1.8l5,-9.8l-5,-9.8l10.9,1.8z" />
+    <path
+        android:fillColor="@color/mb_silver"
+        android:pathData="M24,13.5l4.4,6.1l6.9,-1.1l-3.2,6.1l3.2,6.1l-6.9,-1.1l-4.4,6.1l-4.4,-6.1l-6.9,1.1l3.2,-6.1l-3.2,-6.1l6.9,1.1z" />
+</vector>

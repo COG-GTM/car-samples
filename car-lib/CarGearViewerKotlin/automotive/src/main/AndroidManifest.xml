@@ -19,6 +19,10 @@
 
     <!-- Permissions for accessing VehiclePropertyIds.CURRENT_GEAR. -->
     <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
+    <uses-permission android:name="android.car.permission.CAR_SPEED" />
+    <uses-permission android:name="android.car.permission.CAR_ENERGY" />
+    <!-- Required to read INFO_EV_BATTERY_CAPACITY / INFO_FUEL_CAPACITY for the battery/fuel %. -->
+    <uses-permission android:name="android.car.permission.CAR_INFO" />
 
     <!-- Uses Theme.DeviceDefault to use the car's default theme. -->
     <application
@@ -27,7 +31,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        android:theme="@style/Theme.MbuxDriveStatus">
         <activity android:name="com.example.cargearviewer.MainActivity">
             <meta-data
                 android:name="distractionOptimized"
