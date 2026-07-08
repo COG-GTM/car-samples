@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mb_black">#0A0A0A</color>
+    <color name="mb_silver">#C8CCD0</color>
+    <color name="mb_white">#FFFFFF</color>
+    <color name="mb_blue">#00ADEF</color>
+    <color name="mb_dim">#4A4F55</color>
+</resources>
