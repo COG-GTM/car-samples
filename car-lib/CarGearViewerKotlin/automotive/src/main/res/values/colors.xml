@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mercedes-Benz "MBUX" inspired palette (illustrative only). -->
+    <color name="mb_black">#0A0C0E</color>
+    <color name="mb_surface">#15181B</color>
+    <color name="mb_silver">#E6E9EC</color>
+    <color name="mb_blue">#00ADEF</color>
+    <color name="mb_dim">#55606A</color>
+</resources>
