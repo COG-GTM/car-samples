@@ -21,6 +21,8 @@
     <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
     <uses-permission android:name="android.car.permission.CAR_SPEED" />
     <uses-permission android:name="android.car.permission.CAR_ENERGY" />
+    <!-- Required to read INFO_EV_BATTERY_CAPACITY / INFO_FUEL_CAPACITY for the battery/fuel %. -->
+    <uses-permission android:name="android.car.permission.CAR_INFO" />
 
     <!-- Uses Theme.DeviceDefault to use the car's default theme. -->
     <application
