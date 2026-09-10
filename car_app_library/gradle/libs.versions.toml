@@ -1,8 +1,8 @@
 [versions]
 java = "17"
-kotlin = "2.0.0"
-gradle = "8.4.2"
-androidGradlePlugin = "8.4.2"
+kotlin = "2.0.20"
+gradle = "8.5.2"
+androidGradlePlugin = "8.5.2"
 androidx-annotation-experimental = "1.4.1"
 androidx-core = "1.13.1"
 androidx-car = "1.9.0-alpha01"
