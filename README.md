@@ -21,4 +21,4 @@ Both Gradle projects require JDK 21 to build.
 - Repositories use `mavenCentral()` instead of `jcenter()`.
 - The deprecated `kotlin-android-extensions` plugin was removed.
 - The Android namespace moved from the manifest to `build.gradle`.
-- Android bytecode targets remain Java 17; Android compileSdk, targetSdk, and minSdk values are unchanged.
+- Android bytecode targets are unchanged (Java 1.8 for `car-lib/CarGearViewerKotlin`, Java 17 for `car_app_library`); Android compileSdk, targetSdk, and minSdk values are unchanged.
