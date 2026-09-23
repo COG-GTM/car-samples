@@ -48,8 +48,8 @@ class MainActivity : Activity() {
 
     private lateinit var currentGearTextView: TextView
 
-    /** Car API. */
-    private lateinit var car: Car
+    /** Car API. Null until [Car.createCar] successfully connects to car service. */
+    private var car: Car? = null
 
     /**
      * An API to read VHAL (vehicle hardware access layer) properties. List of vehicle properties
@@ -57,7 +57,7 @@ class MainActivity : Activity() {
      *
      * <p>https://developer.android.com/reference/android/car/hardware/property/CarPropertyManager
      */
-    private lateinit var carPropertyManager: CarPropertyManager
+    private var carPropertyManager: CarPropertyManager? = null
 
     private var carPropertyListener = object : CarPropertyManager.CarPropertyEventCallback {
         override fun onChangeEvent(value: CarPropertyValue<Any>) {
@@ -83,12 +83,24 @@ class MainActivity : Activity() {
         //
         // Other variants of this API allows more control over car service functionality (such as
         // handling car service crashes graciously). Please see the SDK documentation for this.
-        car = Car.createCar(this)
+        val createdCar = Car.createCar(this)
+        if (createdCar == null) {
+            Log.e(TAG, "Car service is not available, gear updates are disabled")
+            currentGearTextView.text = GEAR_UNKNOWN
+            return
+        }
+        car = createdCar
 
-        carPropertyManager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager;
+        val propertyManager = createdCar.getCarManager(Car.PROPERTY_SERVICE) as? CarPropertyManager
+        if (propertyManager == null) {
+            Log.e(TAG, "Car property service is not available, gear updates are disabled")
+            currentGearTextView.text = GEAR_UNKNOWN
+            return
+        }
+        carPropertyManager = propertyManager
 
         // Subscribes to the gear change events.
-        carPropertyManager.registerCallback(
+        propertyManager.registerCallback(
             carPropertyListener,
             VehiclePropertyIds.CURRENT_GEAR,
             CarPropertyManager.SENSOR_RATE_ONCHANGE
@@ -98,6 +110,7 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        car.disconnect()
+        carPropertyManager?.unregisterCallback(carPropertyListener)
+        car?.disconnect()
     }
 }
