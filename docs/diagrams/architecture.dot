@@ -1,0 +1,59 @@
+// Architecture of COG-GTM/car-samples (main). Render with ./render.sh
+digraph car_samples {
+  graph [rankdir=TB, fontname="DejaVu Sans", fontsize=18, labelloc=t, nodesep=0.35, ranksep=0.55, pad=0.3,
+         label="car-samples: what the code on main builds and how it runs"];
+  node  [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=16, fillcolor=white, color="#555555"];
+  edge  [fontname="DejaVu Sans", fontsize=13, color="#555555"];
+
+  subgraph cluster_hosts {
+    label="Car hosts (outside this repo)"; style="rounded,filled"; fillcolor="#f2f2f2"; color="#999999";
+    aa   [label="Android Auto on the phone\n(projected to head unit / DHU)", fillcolor="#fff4d6"];
+    aaos [label="Android Automotive OS\nTemplates Host", fillcolor="#fff4d6"];
+    carsvc [label="AAOS Car service / VHAL\n(CURRENT_GEAR property)", fillcolor="#fff4d6"];
+  }
+
+  subgraph cluster_cal {
+    label="car_app_library/  (one Gradle 8.6 build, AGP 8.4.2, JDK 17, androidx.car.app 1.9.0-alpha01)";
+    style="rounded"; color="#3b6ea5"; fontcolor="#3b6ea5";
+
+    subgraph cluster_showcase {
+      label="showcase"; style="rounded,filled"; fillcolor="#e8f0fa"; color="#3b6ea5";
+      sc_mobile [label=":showcase:mobile\napp-projected, minSdk 23"];
+      sc_auto   [label=":showcase:automotive\napp-automotive, minSdk 29\n+ DebugActivity"];
+      sc_common [label=":showcase:common (library)\nShowcaseService → ShowcaseSession\n→ StartScreen → template / map /\nnavigation / interaction demo screens\nSurfaceController + renderers", fillcolor="#d6e6f7"];
+    }
+
+    subgraph cluster_nav {
+      label="navigation"; style="rounded,filled"; fillcolor="#e8f6ec"; color="#3d8b55";
+      nav_mobile [label=":navigation:mobile\napp-projected, minSdk 23\nphone MainActivity"];
+      nav_auto   [label=":navigation:automotive\napp-automotive, minSdk 29"];
+      nav_common [label=":navigation:common (library)\nNavigationCarAppService →\nNavigationSession (main display) or\nClusterSession (cluster) → NavigationScreen\nSurfaceRenderer draws the map surface", fillcolor="#d3eedb"];
+      nav_svc    [label="NavigationService\n(foreground, location)\nplays DemoScripts via Script\n→ NavigationManager.updateTrip", fillcolor="#d3eedb"];
+    }
+  }
+
+  subgraph cluster_carlib {
+    label="car-lib/CarGearViewerKotlin/  (separate Gradle 5.6.4 build, AGP 3.6.1, JDK 11)";
+    style="rounded,filled"; fillcolor="#f7ecf7"; color="#8a4f8a"; fontcolor="#8a4f8a";
+    gear [label=":automotive  (com.example.cargearviewer)\nMainActivity → Car.createCar()\n→ CarPropertyManager callback\n→ TextView shows the gear name", fillcolor="#efd9ef"];
+  }
+
+  ci [label="GitHub Actions\nbuild-car-gear-viewer-kotlin.yml\n(JDK 11, :automotive:assembleDebug)", shape=note, fillcolor="#eeeeee"];
+
+
+  sc_mobile -> sc_common  [label="project dep"];
+  sc_auto   -> sc_common  [label="project dep"];
+  nav_mobile -> nav_common [label="project dep"];
+  nav_auto   -> nav_common [label="project dep"];
+  nav_common -> nav_svc   [label="bindService"];
+  nav_mobile -> nav_svc   [label="MainActivity binds", style=dashed];
+
+  aa   -> sc_mobile  [label="binds CarAppService,\nrenders templates"];
+  aa   -> nav_mobile [label="binds CarAppService"];
+  aaos -> sc_auto    [label="CarAppActivity hosts"];
+  aaos -> nav_auto   [label="CarAppActivity hosts"];
+  carsvc -> gear     [label="gear change events", constraint=false];
+  sc_common -> gear  [style=invis];
+  nav_svc -> ci      [style=invis];
+  ci -> gear         [label="builds only this project", style=dashed, constraint=false];
+}

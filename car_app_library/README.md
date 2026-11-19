@@ -5,7 +5,8 @@ Please find the library documentation at https://developer.android.com/training/
 
 Prerequisites
 --------------
-- [Android 6.0 SDK (API level 23)](https://developer.android.com/studio/releases/platforms#6.0) or newer.
+- Android SDK Platform 34 (the samples compile against API 34). The `mobile` apps run on Android 6.0 (API level 23) or newer, the `automotive` apps on Android 10 (API level 29) or newer.
+- JDK 17.
 
 Build and Run From Android Studio
 -----------------------
@@ -20,7 +21,7 @@ In order to build app APKs,
 
 In order to install and run the apps,
 
-1. Open the AndroidX project in Android Studio.
+1. Open this directory in Android Studio.
 
 2. Go to `Run -> Edit Configurations`, select a sample app target (e.g. `car.app.app-samples
 .showcase-mobile`). If you are building for the `mobile` platform, also select `Launch: Nothing
@@ -31,30 +32,25 @@ In order to install and run the apps,
 
 Run From the Command Line
 ---------------------
-1. Open the project in Android Studio to download the gradle wrapper files.
+The Gradle wrapper is checked in, so no Android Studio step is needed. Use JDK 17.
 
-2. Run `./gradlew :<sample_app>:<platform>:assemble` to assemble the APKs. E.g.
+1. Point Gradle at your Android SDK, either with the `ANDROID_HOME` environment variable or a
+`local.properties` file in this directory containing:
 
-```bash
-./gradlew :showcase:mobile:assemble
-./gradlew :showcase:automotive:assemble
+```
+sdk.dir=<your android sdk directory path>
 ```
 
-The APK should be generated under the sample app’s build directory, e.g. `<sample_app>/<platform>/build/outputs/apk/debug`.
+2. Run `./gradlew :<sample_app>:<platform>:assembleDebug` to assemble the APKs. E.g.
 
-If you see this error during the build:
+```bash
+./gradlew :showcase:mobile:assembleDebug
+./gradlew :showcase:automotive:assembleDebug
+./gradlew :navigation:mobile:assembleDebug
+./gradlew :navigation:automotive:assembleDebug
+```
 
-    ```shell
-    > SDK location not found. Define location with an ANDROID_SDK_ROOT environment variable or by
-     setting the sdk.dir path in your projects local properties file at <project_path
-     >/local.properties
-    ```
-
-Create `local.properties` file under the project directory, and copy the following line:
-
-    ```
-    sdk.dir = <your android sdk directory path>
-    ```
+The APK is generated under the sample app's build directory, e.g. `<sample_app>/<platform>/build/outputs/apk/debug`.
 
 3. Install the APK with ADB:
 
@@ -76,8 +72,7 @@ In short, do the following:
 
 Run the Automotive Apps in the Automotive OS Emulator
 -------------------------------------------
-In order to use the Automotive OS emulator, download the Android Studio 4.2 or higher (currently
-only available in the Beta and Canary tracks), and do the following:
+In order to use the Automotive OS emulator, do the following:
 
 1. Follow instructions to [run an Automotive OS emulator][5].
 2. Follow instructions to [update the Template Host app][6].

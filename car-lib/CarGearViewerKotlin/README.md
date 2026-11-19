@@ -22,8 +22,17 @@ Prerequisites
 
 Getting Started
 ---------------
-This sample uses the Gradle build system. To build this project, use the
-"gradlew build" command or use "Import Project" in Android Studio.
+This sample uses the Gradle build system (Gradle 5.6.4 wrapper, Android Gradle Plugin 3.6.1) and
+needs JDK 11. Point Gradle at your Android SDK with `ANDROID_HOME` or a `local.properties` file
+containing `sdk.dir=<your android sdk directory path>`, then run:
+
+```bash
+./gradlew :automotive:assembleDebug
+adb install automotive/build/outputs/apk/debug/automotive-debug.apk
+```
+
+On an Android Automotive OS emulator, change the gear with
+`adb shell cmd car_service inject-vhal-event 289408001 <1=N|2=R|4=P|8=D>`.
 
 Support
 -------
