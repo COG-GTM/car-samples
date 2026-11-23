@@ -15,12 +15,11 @@
  */
 
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.android.application)
 }
 
 android {
-    compileSdk 34
+    compileSdk = 34
 
     defaultConfig {
         applicationId "androidx.car.app.sample.navigation"
@@ -36,9 +35,7 @@ android {
         release {
             // Enables code shrinking, obfuscation, and optimization.
             minifyEnabled true
-            proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'),
-                    'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
         }
     }
 
@@ -46,11 +43,13 @@ android {
         languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
     }
 
-    kotlinOptions {
-        jvmTarget = libs.versions.java.get()
-    }
-
     namespace "androidx.car.app.sample.navigation"
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(libs.versions.java.get())
+    }
 }
 
 dependencies {
