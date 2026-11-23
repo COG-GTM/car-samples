@@ -20,6 +20,9 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
@@ -43,7 +46,14 @@ public final class ShowcaseApplication extends Application
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
                 && activity instanceof CarAppActivity carAppActivity) {
             OnBackInvokedDispatcher dispatcher = carAppActivity.getOnBackInvokedDispatcher();
-            OnBackInvokedCallback callback = carAppActivity::onBackPressed;
+            OnBackInvokedCallback callback = () -> {
+                // CarAppActivity hides the renderer surface when the host is disconnected.
+                if (hasVisibleRenderer(carAppActivity.findViewById(android.R.id.content))) {
+                    carAppActivity.onBackPressed();
+                } else {
+                    carAppActivity.finish();
+                }
+            };
             dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT,
                     callback);
             carAppActivity.getLifecycle().addObserver((LifecycleEventObserver) (owner, event) -> {
@@ -52,6 +62,20 @@ public final class ShowcaseApplication extends Application
                 }
             });
         }
+    }
+
+    private static boolean hasVisibleRenderer(View view) {
+        if (view instanceof SurfaceView) {
+            return view.isShown();
+        }
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                if (hasVisibleRenderer(group.getChildAt(i))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
