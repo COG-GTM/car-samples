@@ -22,6 +22,8 @@ import android.car.hardware.CarPropertyValue
 import android.car.hardware.property.CarPropertyManager
 import android.os.Bundle
 import android.util.Log
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.cargearviewer.databinding.ActivityMainBinding
 
 /**
@@ -74,6 +76,13 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val safeArea = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            view.setPadding(safeArea.left, safeArea.top, safeArea.right, safeArea.bottom)
+            insets
+        }
         setContentView(binding.root)
 
         // createCar() returns a "Car" object to access car service APIs. It can return null if
