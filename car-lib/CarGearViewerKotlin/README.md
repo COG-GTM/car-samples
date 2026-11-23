@@ -18,7 +18,7 @@ Prerequisites
 --------------
 
 - JDK 17 or newer.
-- [Android 17 SDK Platform 37.2](https://developer.android.com/about/versions/17/setup-sdk).
+- Stable Android SDK Platform 37.2. Install it with `sdkmanager "platforms;android-37.2"`.
 - A device running Android Automotive OS P or newer.
 
 Getting Started
