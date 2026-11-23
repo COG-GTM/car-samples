@@ -6,16 +6,18 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install Android SDK packages
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-29" "build-tools;29.0.3"'
 
       - name: Set Up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '11'
@@ -28,6 +30,6 @@ jobs:
         run: chmod +x ./gradlew
         working-directory: ./car-lib/CarGearViewerKotlin
 
-      - name: Build CarGearViewerKotlin automotive app
+      - name: Build and lint CarGearViewerKotlin automotive app
         working-directory: ./car-lib/CarGearViewerKotlin
-        run: ./gradlew :automotive:assembleDebug
+        run: ./gradlew assembleDebug lint
