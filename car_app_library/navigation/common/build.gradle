@@ -19,18 +19,18 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         minSdkVersion 23
     }
 
     lint {
-        targetSdk = 34
+        targetSdk = 37
     }
 
     testOptions {
-        targetSdk = 34
+        targetSdk = 37
     }
     java.toolchain {
         languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
