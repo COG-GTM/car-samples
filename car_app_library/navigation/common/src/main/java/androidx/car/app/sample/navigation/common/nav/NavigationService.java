@@ -65,6 +65,7 @@ import androidx.car.app.sample.navigation.common.model.Instruction;
 import androidx.car.app.sample.navigation.common.model.Script;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.ServiceCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -421,7 +422,6 @@ public class NavigationService extends Service {
     }
 
     /** Stops navigation. */
-    @SuppressWarnings("deprecation")
     public void stopNavigation() {
         Log.i(TAG, "Stopping Navigation");
         if (mScript != null) {
@@ -446,7 +446,7 @@ public class NavigationService extends Service {
                     /* shouldShowLanes= */ false,
                     /* junctionImage= */ null);
         }
-        stopForeground(true);
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE);
         stopSelf();
     }
 
