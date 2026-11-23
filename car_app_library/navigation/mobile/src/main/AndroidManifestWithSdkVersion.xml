@@ -26,7 +26,7 @@
 
     <uses-sdk
         android:minSdkVersion="29"
-        android:targetSdkVersion="33" />
+        android:targetSdkVersion="37" />
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -36,6 +36,7 @@
     <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
     <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
 
     <!-- For Microphone Recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
@@ -56,7 +57,6 @@
 
         <service
             android:name="androidx.car.app.sample.navigation.common.car.NavigationCarAppService"
-            android:foregroundServiceType="location"
             android:exported="true">
 
             <intent-filter>
@@ -73,6 +73,7 @@
         <service
             android:name="androidx.car.app.sample.navigation.common.nav.NavigationService"
             android:enabled="true"
+            android:foregroundServiceType="location"
             android:exported="true">
         </service>
     </application>
