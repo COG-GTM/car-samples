@@ -55,7 +55,6 @@ kotlin {
 
 dependencies {
     implementation libs.androidx.app.automotive
-    implementation 'androidx.fragment:fragment:1.3.0'
     implementation project(":showcase:common")
     implementation libs.androidx.core.ktx
 }
