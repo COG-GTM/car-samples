@@ -7,6 +7,7 @@ Prerequisites
 --------------
 - [Android 6.0 SDK (API level 23)](https://developer.android.com/studio/releases/platforms#6.0) or newer.
 - [Android SDK Build Tools 36.0.0](https://developer.android.com/tools/releases/build-tools).
+- If using the IDE, [Android Studio Rabbit 2 (2026.2.2) or newer](https://developer.android.com/studio/releases#android_gradle_plugin_and_android_studio_compatibility).
 
 Build and Run From Android Studio
 -----------------------
@@ -77,8 +78,7 @@ In short, do the following:
 
 Run the Automotive Apps in the Automotive OS Emulator
 -------------------------------------------
-In order to use the Automotive OS emulator, download the Android Studio 4.2 or higher (currently
-only available in the Beta and Canary tracks), and do the following:
+Use the Android Studio version listed in the prerequisites, and do the following:
 
 1. Follow instructions to [run an Automotive OS emulator][5].
 2. Follow instructions to [update the Template Host app][6].
