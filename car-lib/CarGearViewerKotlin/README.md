@@ -17,6 +17,7 @@ https://cs.android.com/android/platform/superproject/+/master:packages/services/
 Prerequisites
 --------------
 
+- JDK 17 or newer.
 - [Android 17 SDK Platform 37.2](https://developer.android.com/about/versions/17/setup-sdk).
 - A device running Android Automotive OS P or newer.
 
