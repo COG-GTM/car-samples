@@ -42,7 +42,6 @@ import androidx.annotation.RequiresPermission;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.media.CarAudioRecord;
-import androidx.car.app.utils.LogTags;
 
 import org.jspecify.annotations.NonNull;
 
@@ -56,6 +55,7 @@ import java.util.List;
 
 /** Manages recording the microphone and accessing the stored data from the microphone. */
 public class VoiceInteraction {
+    private static final String TAG = "showcase";
     private static final String FILE_NAME = "recording.wav";
 
     private final CarContext mCarContext;
@@ -126,7 +126,7 @@ public class VoiceInteraction {
                         recordAudio(record);
                         playBackAudio();
                     } catch (Exception e) {
-                        Log.e(LogTags.TAG, "Voice Interaction Error: ", e);
+                        Log.e(TAG, "Voice Interaction Error: ", e);
                         throw new RuntimeException(e);
                     } finally {
                         // Abandon the FocusRequest so that user's media can be resumed

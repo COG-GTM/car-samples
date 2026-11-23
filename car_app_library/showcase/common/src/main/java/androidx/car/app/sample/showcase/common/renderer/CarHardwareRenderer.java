@@ -69,6 +69,7 @@ public final class CarHardwareRenderer implements Renderer {
     @Nullable EnergyLevel mEnergyLevel;
     @Nullable Speed mSpeed;
     @Nullable Mileage mMileage;
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @Nullable EvStatus mEvStatus;
     @Nullable Accelerometer mAccelerometer;
     @Nullable Gyroscope mGyroscope;
@@ -131,6 +132,7 @@ public final class CarHardwareRenderer implements Renderer {
             requestRenderFrame();
         }
     };
+    @OptIn(markerClass = ExperimentalCarApi.class)
     private final OnCarDataAvailableListener<EvStatus> mEvStatusListener = data -> {
         synchronized (this) {
             Log.i(TAG, "Received car EV status: " + data);

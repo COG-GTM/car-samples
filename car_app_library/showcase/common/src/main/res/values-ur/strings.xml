@@ -134,9 +134,7 @@
     <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ریزرویشن منسوخ کر دی گئی"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"نتیجے کا ڈیمو"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"یہ ایپ نتیجے کے لیے شروع نہیں کی گئی"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for started_for_result_msg (4225260243713833974) -->
-    <skip />
+    <string name="started_for_result_msg" msgid="4225260243713833974">"اس ایپ کو %s نے نتیجہ حاصل کرنے کے لیے شروع کیا تھا۔ براہ کرم وہ نتیجہ منتخب کریں جو کال کرنے والے کو واپس بھیجنا ہے۔"</string>
     <string name="arrived_exclamation_msg" msgid="9132265698563096988">"پہنچ گیا!"</string>
     <string name="travel_est_trip_text" msgid="5134365408383171144">"‏Alice کو پک اپ کریں"</string>
     <string name="send_notification_title" msgid="4731688444696028193">"اطلاع بھیجیں"</string>
@@ -264,9 +262,7 @@
     <string name="sign_in_title" msgid="4551967308262681703">"سائن ان کریں"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"اپنے اسناد درج کریں"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"صارف کا نام ایک درست ای میل پتہ ہونا ضروری ہے"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for invalid_length_error_msg (8238905276326976425) -->
-    <skip />
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"صارف نام کم از کم %s حروف پر مشتمل ہونا چاہیے"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"غلط پاس ورڈ"</string>
     <string name="password_hint" msgid="2869107073860012864">"پاس ورڈ"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"صارف نام"</string>

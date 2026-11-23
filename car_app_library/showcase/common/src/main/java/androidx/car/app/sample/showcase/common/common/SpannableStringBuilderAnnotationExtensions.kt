@@ -25,13 +25,14 @@ import androidx.annotation.StringRes
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.ClickableSpan
 import androidx.car.app.model.ForegroundCarColorSpan
-import androidx.car.app.utils.LogTags.TAG
 
 /**
  * Provides [SpannableStringBuilder] extension methods, which can be used to find & replace
  * [android.text.Annotation] tags.
  */
 object SpannableStringBuilderAnnotationExtensions {
+    private const val TAG = "showcase"
+
     @JvmStatic
     fun Context.getSpannableStringBuilder(@StringRes resId: Int): SpannableStringBuilder =
         SpannableStringBuilder(getText(resId))
