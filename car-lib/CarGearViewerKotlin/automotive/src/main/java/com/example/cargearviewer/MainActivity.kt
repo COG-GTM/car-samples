@@ -22,7 +22,7 @@ import android.car.hardware.CarPropertyValue
 import android.car.hardware.property.CarPropertyManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
+import com.example.cargearviewer.databinding.ActivityMainBinding
 
 /**
  * A simple activity that demonstrates connecting to car API and processing car property change
@@ -46,7 +46,7 @@ class MainActivity : Activity() {
         )
     }
 
-    private lateinit var currentGearTextView: TextView
+    private lateinit var binding: ActivityMainBinding
 
     /** Car API. */
     private lateinit var car: Car
@@ -63,7 +63,7 @@ class MainActivity : Activity() {
         override fun onChangeEvent(value: CarPropertyValue<Any>) {
             Log.d(TAG, "Received on changed car property event")
             // value.value type changes depending on the vehicle property.
-            currentGearTextView.text = VEHICLE_GEARS.getOrDefault(value.value as Int, GEAR_UNKNOWN)
+            binding.currentGearTextView.text = VEHICLE_GEARS.getOrDefault(value.value as Int, GEAR_UNKNOWN)
         }
 
         override fun onErrorEvent(propId: Int, zone: Int) {
@@ -73,9 +73,8 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        currentGearTextView = findViewById(R.id.currentGearTextView)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // createCar() returns a "Car" object to access car service APIs. It can return null if
         // car service is not yet ready but that is not a common case and can happen on rare cases
