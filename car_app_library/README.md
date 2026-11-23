@@ -5,7 +5,7 @@ Please find the library documentation at https://developer.android.com/training/
 
 Prerequisites
 --------------
-- [Android 6.0 SDK (API level 23)](https://developer.android.com/studio/releases/platforms#6.0) or newer.
+- [Android SDK Platform 37](https://developer.android.com/studio/releases/platforms) to build Showcase; Android SDK Platform 34 to build Navigation.
 - [Android SDK Build Tools 36.0.0](https://developer.android.com/tools/releases/build-tools).
 - If using the IDE, [Android Studio Rabbit 2 (2026.2.2) or newer](https://developer.android.com/studio/releases#android_gradle_plugin_and_android_studio_compatibility).
 
