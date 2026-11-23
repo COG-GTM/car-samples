@@ -6,6 +6,7 @@ Please find the library documentation at https://developer.android.com/training/
 Prerequisites
 --------------
 - [Android 6.0 SDK (API level 23)](https://developer.android.com/studio/releases/platforms#6.0) or newer.
+- [Android SDK Build Tools 36.0.0](https://developer.android.com/tools/releases/build-tools).
 
 Build and Run From Android Studio
 -----------------------
