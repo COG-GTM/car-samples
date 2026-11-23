@@ -1,10 +1,10 @@
 [versions]
 java = "17"
 androidGradlePlugin = "9.5.2"
-androidx-annotation-experimental = "1.4.1"
+androidx-annotation-experimental = "1.6.0"
 androidx-core = "1.13.1"
 androidx-car = "1.9.0-alpha01"
-androidx-constraintlayout = "2.1.4"
+androidx-constraintlayout = "2.2.2"
 core-ktx = "1.13.1"
 
 [libraries]
