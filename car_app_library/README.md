@@ -5,7 +5,7 @@ Please find the library documentation at https://developer.android.com/training/
 
 Prerequisites
 --------------
-- [Android SDK Platform 37](https://developer.android.com/studio/releases/platforms) to build Showcase; Android SDK Platform 34 to build Navigation.
+- [Android SDK Platforms 34 and 37](https://developer.android.com/studio/releases/platforms) to sync the project in Android Studio. Navigation uses Platform 34 and Showcase uses Platform 37.
 - [Android SDK Build Tools 36.0.0](https://developer.android.com/tools/releases/build-tools).
 - If using the IDE, [Android Studio Rabbit 2 (2026.2.2) or newer](https://developer.android.com/studio/releases#android_gradle_plugin_and_android_studio_compatibility).
 
