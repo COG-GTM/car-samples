@@ -16,7 +16,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-car-app-library:
+    name: Build car_app_library (assembleDebug + lint)
     runs-on: ubuntu-latest
     defaults:
       run:
