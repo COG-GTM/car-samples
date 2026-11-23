@@ -32,6 +32,9 @@ import androidx.activity.ComponentActivity;
 import androidx.car.app.connection.CarConnection;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.nav.NavigationService;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import org.jspecify.annotations.Nullable;
 
@@ -76,6 +79,14 @@ public class MainActivity extends ComponentActivity {
         Log.i(TAG, "In onCreate()");
 
         setContentView(R.layout.activity_main);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.navigation_controls),
+                (view, insets) -> {
+                    Insets safeArea = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+                            | WindowInsetsCompat.Type.displayCutout());
+                    view.setPadding(safeArea.left, safeArea.top, safeArea.right, safeArea.bottom);
+                    return insets;
+                });
 
         // Hook up some manual navigation controls.
         Button startNavButton = findViewById(R.id.start_nav);

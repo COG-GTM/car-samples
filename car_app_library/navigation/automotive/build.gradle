@@ -35,9 +35,7 @@ android {
         release {
             // Enables code shrinking, obfuscation, and optimization.
             minifyEnabled true
-            proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'),
-                    'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
         }
     }
 
@@ -56,6 +54,7 @@ kotlin {
 
 dependencies {
     implementation libs.androidx.app.automotive
+    implementation 'androidx.fragment:fragment:1.3.0'
     implementation project(":navigation:common")
     implementation libs.androidx.core.ktx
 }
