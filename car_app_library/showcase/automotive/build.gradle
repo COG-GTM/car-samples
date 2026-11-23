@@ -19,12 +19,12 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 29
-        targetSdkVersion 34
+        targetSdk = 37
         // Increment this to generate signed builds for uploading to Playstore
         // Make sure this is different from the showcase-mobile version
         versionCode 113
