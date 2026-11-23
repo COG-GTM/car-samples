@@ -17,7 +17,7 @@ https://cs.android.com/android/platform/superproject/+/master:packages/services/
 Prerequisites
 --------------
 
-- [Android 10 SDK (API level 29) Revision 5](https://developer.android.com/studio/releases/platforms#10) or newer.
+- [Android 17 SDK Platform 37.2](https://developer.android.com/about/versions/17/setup-sdk).
 - A device running Android Automotive OS P or newer.
 
 Getting Started
