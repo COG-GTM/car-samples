@@ -26,7 +26,7 @@
 
   <uses-sdk
       android:minSdkVersion="29"
-      android:targetSdkVersion="33" />
+      android:targetSdkVersion="37" />
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -36,6 +36,7 @@
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
 
   <!-- SDK 33 onwards, apps require this permission to send any notifications to the system -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -73,7 +74,6 @@
 
     <service
         android:name="androidx.car.app.sample.navigation.common.car.NavigationCarAppService"
-        android:foregroundServiceType="location"
         android:exported="true">
 
       <intent-filter>
@@ -85,12 +85,14 @@
     <service
         android:name="androidx.car.app.sample.navigation.common.nav.NavigationService"
         android:enabled="true"
+        android:foregroundServiceType="location"
         android:exported="true">
     </service>
 
     <activity
         android:name="androidx.car.app.activity.CarAppActivity"
         android:configChanges="uiMode"
+        android:enableOnBackInvokedCallback="false"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:exported="true"
         android:launchMode="singleTask"
