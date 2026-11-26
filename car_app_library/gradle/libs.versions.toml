@@ -1,6 +1,6 @@
 [versions]
 java = "17"
-androidGradlePlugin = "9.5.2"
+androidGradlePlugin = "9.5.3"
 androidx-annotation-experimental = "1.4.1"
 androidx-core = "1.13.1"
 androidx-car = "1.9.0-alpha01"
