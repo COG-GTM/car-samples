@@ -14,7 +14,7 @@ knowledge:
     contents: |
       # car_app_library (AGP 8.4.2, needs JDK 17; wrapper committed on main):
       (cd car_app_library && JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :showcase:mobile:assembleDebug :showcase:automotive:assembleDebug)
-      # CarGearViewerKotlin (Gradle 9.9.2, needs JDK 17):
+      # CarGearViewerKotlin (Gradle 9.9.3, needs JDK 17):
       (cd car-lib/CarGearViewerKotlin && JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew assembleDebug lint)
   - name: notes
     contents: |
